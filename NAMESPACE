@@ -1,0 +1,13 @@
+export(
+ p2
+)
+
+# used internally - not intended to be visible to users
+# p2model
+# llp2
+# effectiveEst
+
+importFrom("mvnfast", "rmvn", "dmvn")
+importFrom("stats", "cov", "model.matrix", "quantile", "rWishart",
+           "runif", "sd", "var")
+importFrom("MASS", "ginv")
