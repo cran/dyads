@@ -1,15 +1,15 @@
-\name{p2}
-\alias{p2}
+\name{j2}
+\alias{j2}
 
 \title{
-  MCMC estimates for the p2 model
+  MCMC estimates for the j2 model
 }
 \description{
-  Estimates p2 model parameters with the adaptive random walk algorithm as described in Zijlstra, Van Duijn and Snijders (2009).
+  Estimates j2 model parameters as described in Zijlstra (in press) <doi:10.1080/0022250X.2017.1387858>.
 }
 \usage{
-p2(net, sender = NULL, receiver = NULL, density = NULL, reciprocity = NULL, 
-burnin = NULL, sample = NULL, adapt = NULL, seed = NULL)
+j2(net, sender = NULL, receiver = NULL , density = NULL, reciprocity = NULL, 
+burnin = NULL, sample = NULL, adapt= NULL, center = NULL, seed = NULL) 
 }
 
 \arguments{
@@ -21,14 +21,15 @@ burnin = NULL, sample = NULL, adapt = NULL, seed = NULL)
   \item{burnin}{Optional specification of number of burn-in iterations (default is 10000).}
   \item{sample}{Optional specification of number of MCMC samples (default is 40000).}
   \item{adapt}{Optional number of adaptive sequenses (default is 100).}
+  \item{center}{Optional boolean argument for centering predictors (default is TRUE).}
   \item{seed}{Optonal specification of random seed (delfault is 1).}
 }
 
 \value{
-Returns a matrix with MCMC means, standard deviations, quantiles and estimated effective sample sizes for p2 parameters.
+Returns a matrix with MCMC means, standard deviations, quantiles and effective sample sizes for j2 parameters.
 }
 \references{
-Zijlstra, B.J.H., Duijn, M.A.J. van, and  Snijders, T.A.B. (2009). MCMC estimation for the $p_2$ network regression model with crossed random effects. \emph{British Journal of Mathematical and Statistical Psychology}, 62, 143-166.
+Zijlstra, B.J.H. (in press). Regression of directed graphs on independent effects for density and reciprocity. \emph{Journal of Mathematical Sociology}.
 }
 \author{
 Bonne J.H. Zijlstra \email{b.j.h.zijlstra@uva.nl}
@@ -38,24 +39,24 @@ Bonne J.H. Zijlstra \email{b.j.h.zijlstra@uva.nl}
 
 # create a very small network with covariates for illustrative purposes
 S <- c(1,0,1,0,1,1,0,1,0,1)
-REC <- (S*-1)+1
-D1 <- matrix(c(0,1,0,1,0,1,0,1,0,1,
-              0,0,0,1,0,1,0,1,0,1,
-              1,1,0,0,1,0,0,0,0,0,
-              1,1,1,0,1,0,0,0,0,1,
-              1,0,1,0,0,1,1,0,1,0,
-              0,0,0,0,0,0,1,1,1,1,
-              0,0,0,0,0,1,0,1,0,1,
-              1,0,0,0,0,1,1,0,1,1,
-              0,1,0,1,0,1,0,1,0,0,
-              1,0,1,1,1,0,0,0,0,0), ncol=10)
+REC <- c(0,0,1,1,0,0,1,1,0,0)
+D1 <- matrix(c(0,1,0,1,0,1,0,1,0,0,
+               0,0,1,1,0,1,0,1,0,1,
+               1,1,0,0,1,0,0,0,0,0,
+               1,1,1,0,1,0,0,0,0,1,
+               1,0,1,0,0,1,1,0,1,1,
+               0,0,0,0,0,0,1,1,1,1,
+               0,0,0,0,0,1,0,1,0,1,
+               1,0,0,0,0,1,1,0,1,1,
+               0,1,0,1,0,1,0,1,0,0,
+               0,0,1,1,1,0,0,0,0,0), ncol=10)
 D2 <- abs(matrix(rep(S,10), byrow = FALSE, ncol= 10) -
             matrix(rep(REC,10), byrow = TRUE, ncol= 10))
 R <- D1*t(D1)
-Y <- matrix(c(0,1,1,1,1,1,0,0,1,1,
+Y <- matrix(c(0,0,1,1,1,1,0,0,1,1,
               0,0,0,1,1,1,0,0,1,0,
               1,1,0,1,1,1,0,0,1,1,
-              1,1,1,0,1,1,0,1,1,0,
+              0,1,1,0,1,1,0,1,1,0,
               1,1,1,1,0,1,1,0,1,1,
               0,1,1,1,1,0,1,1,1,0,
               1,0,1,0,1,1,0,1,0,1,
@@ -63,14 +64,14 @@ Y <- matrix(c(0,1,1,1,1,1,0,0,1,1,
               1,0,1,0,1,0,1,1,0,1,
               1,1,1,0,0,1,1,1,1,0), ncol=10) 
 
-# estimate p2 model
-p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
+# estimate j2 model
+j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
    burnin = 1000, sample = 4000, adapt = 20)
-# Notice: burn-in, sample size and number of adaptive sequenses are 
+# notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
 \donttest{
-p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1+ D2, reciprocity= ~ R)
+j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R)
 }
 }
 \keyword{p2 model}

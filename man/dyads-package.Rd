@@ -13,7 +13,7 @@ Package for Dyadic Network Analysis.
 
 \packageDESCRIPTION{dyads}
 \packageIndices{dyads}
-Package for Dyadic Network Analysis.
+Includes functions for estimation of the p2 model (van Duijn, Snijders and Zijlstra (2004) <doi:10.1046/j.0039-0402.2003.00258.x>), more specifically the adaptive random walk algorithm (Zijlstra, van Duijn and Snijders (2009) <doi:10.1348/000711007X255336>), and for the estimation of the j2 model (Zijlstra (in press) <doi:10.1080/0022250X.2017.1387858>).
 }
 \author{
 Bonne J.H. Zijlstra
@@ -21,10 +21,11 @@ Maintainer: Bonne J.H. Zijlstra <B.J.H.Zijlstra@uva.nl>
 }
 \references{
 Zijlstra, B.J.H., Duijn, M.A.J. van, and  Snijders, T.A.B. (2009). MCMC estimation for the $p_2$ network regression model with crossed random effects. \emph{British Journal of Mathematical and Statistical Psychology}, 62, 143-166.
+Zijlstra, B.J.H. (in press). Regression of directed graphs on independent effects for density and reciprocity. \emph{Journal of Mathematical Sociology}.
 }
 
 
-\keyword{p2 model}
+\keyword{j2 model, p2 model}
 
 \examples{
 
@@ -60,5 +61,8 @@ p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
    burnin = 1000, sample = 4000, adapt = 20)
 # Notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
-# recommended code: p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D, reciprocity= ~ R)
+# recommended code: 
+\donttest{
+p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R)
+}
 }

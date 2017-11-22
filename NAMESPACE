@@ -1,13 +1,16 @@
 export(
- p2
+  j2,
+  p2
 )
 
 # used internally - not intended to be visible to users
+# j2 model
+# llj2
 # p2model
 # llp2
 # effectiveEst
 
-importFrom("mvnfast", "rmvn", "dmvn")
+importFrom("mvnfast", "rmvn", "dmvn", "dmvt")
 importFrom("stats", "cov", "model.matrix", "quantile", "rWishart",
            "runif", "sd", "var")
 importFrom("MASS", "ginv")
