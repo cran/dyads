@@ -21,7 +21,7 @@ Maintainer: Bonne J.H. Zijlstra <B.J.H.Zijlstra@uva.nl>
 }
 \references{
 Zijlstra, B.J.H., Duijn, M.A.J. van, and  Snijders, T.A.B. (2009). MCMC estimation for the $p_2$ network regression model with crossed random effects. \emph{British Journal of Mathematical and Statistical Psychology}, 62, 143-166.
-Zijlstra, B.J.H. (in press). Regression of directed graphs on independent effects for density and reciprocity. \emph{Journal of Mathematical Sociology}.
+Zijlstra, B.J.H. (2017). Regression of directed graphs on independent effects for density and reciprocity. \emph{Journal of Mathematical Sociology}, 41(4), 185-192..
 }
 
 
@@ -58,7 +58,7 @@ Y <- matrix(c(0,1,1,1,1,1,0,0,1,1,
 
 # estimate p2 model
 p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
-   burnin = 1000, sample = 4000, adapt = 20)
+   burnin = 100, sample = 400, adapt = 10)
 # Notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 

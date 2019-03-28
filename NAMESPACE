@@ -10,7 +10,8 @@ export(
 # llp2
 # effectiveEst
 
-importFrom("mvnfast", "rmvn", "dmvn", "dmvt")
+importFrom("mvtnorm", "dmvnorm", "dmvt", "rmvnorm")
 importFrom("stats", "cov", "model.matrix", "quantile", "rWishart",
            "runif", "sd", "var")
 importFrom("MASS", "ginv")
+#importFrom("utils", "txtProgressBar")

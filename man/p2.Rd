@@ -5,7 +5,7 @@
   MCMC estimates for the p2 model
 }
 \description{
-  Estimates p2 model parameters with the adaptive random walk algorithm as described in Zijlstra, Van Duijn and Snijders (2009).
+  Estimates p2 model parameters with the adaptive random walk algorithm as described in Zijlstra, Van Duijn and Snijders (2009) <doi: 10.1348/000711007X255336>.
 }
 \usage{
 p2(net, sender = NULL, receiver = NULL, density = NULL, reciprocity = NULL, 
@@ -65,7 +65,7 @@ Y <- matrix(c(0,1,1,1,1,1,0,0,1,1,
 
 # estimate p2 model
 p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
-   burnin = 1000, sample = 4000, adapt = 20)
+   burnin = 100, sample = 400, adapt = 10)
 # Notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 

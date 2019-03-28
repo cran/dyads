@@ -66,7 +66,7 @@ Y <- matrix(c(0,0,1,1,1,1,0,0,1,1,
 
 # estimate j2 model
 j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
-   burnin = 1000, sample = 4000, adapt = 20)
+   burnin = 100, sample = 400, adapt = 10)
 # notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
@@ -74,5 +74,5 @@ j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
 j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R)
 }
 }
-\keyword{p2 model}
+\keyword{j2 model}
 

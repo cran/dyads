@@ -9,7 +9,7 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   if(!is.null(burnin)){
     Nsamp <- sample
   } else {
-    Nsamp <- 40000
+    Nsamp <- 80000
   } 
   if(!is.null(adapt)){
     Nadapt <- adapt
@@ -49,15 +49,15 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   nvarcovpar <- nvarpar*(nvarpar+1)/2
   # prior distributions
   pSDb <- 3
-  sigmab <- c(if (ns>0) {pSDb/apply(X1, 2, sd)}, if (nre>0) {pSDb/apply(X2, 2, sd)}, pSDb, pSDb/apply(X3[,2:nd, drop=F], 2, sd))
+  sigmab <- c(if (ns>0) {pSDb/apply(X1, 2, sd)}, if (nre>0) {pSDb/apply(X2, 2, sd)}, pSDb, if (nd>1) {pSDb/apply(X3[,2:nd, drop=F], 2, sd)})
   sigmaR <- 1
   sigmapar <- c(sigmab, rep(sigmaR, nrand))
   pmb <- as.vector(rep(0, npar))
   pVb <- diag(sigmapar^2)
   pmr <- as.vector(rep(0, nr))
   pSDg4 <- 2
-  pScaler <- c(pSDg4, pSDg4/apply(X4[,2:nr, drop=F], 2, sd))
-  pVr <- diag(pScaler^2)
+  pScaler <- c(pSDg4, if (nr>1) {pSDg4/apply(X4[,2:nr, drop=F], 2, sd)})
+  pVr <- diag(pScaler^2, ncol = nr)
   pmbr <- c(pmb[1:nb], pmr)
   pVbr <- diag(c(sigmapar[1:nb]^2, pScaler^2))
   pdfR <- nvarpar +1
@@ -97,6 +97,8 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   Sb <- 1
   Sc <- 1
   Sr <- 1
+  #print(paste("adaptive sequence"))
+  #pb <- txtProgressBar(min = 0, max = Nadapt, style = 3)
   for (i in 1:Nadapt){
     accb <- 0
     accc <- 0
@@ -104,11 +106,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     for (j in 1:Sadapt){ 
       # parameters
       beta2 <- beta 
-      beta2[1:nb] <- beta[1:nb] + as.vector(rmvn(1, pmb[1:nb], covRWADb[1:nb, 1:nb]))
-      g4s <- g4 + as.vector(rmvn(1, pmr, covRWADr))
+      beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWADb[1:nb, 1:nb])))
+      g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWADr)))
       ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-      ll1br <- ll1 + log(dmvt(t(c(beta[1:nb], g4)), mu= pmbr, sigma= pVbr, df=7))    
-      ll2br <- ll2 + log(dmvt(t(c(beta2[1:nb], g4s)), mu= pmbr, sigma= pVbr, df=7)) 
+      ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
+      ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7) 
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
         bsimsAD[((i-1)*Sadapt + j), ] <- beta2
         beta <- beta2
@@ -123,11 +125,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       }   
       # random effects
       beta2 <- beta
-      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvn(nact, c(0,0), covRWADC))
+      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma= covRWADC))
       ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-      ll1C <- ll1 + sum(log(dmvn(c, mu= c(0,0), sigma= varAD)))   
+      ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varAD)))   
       c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-      ll2C <- ll2 + sum(log(dmvn(c2, mu= c(0,0), sigma= varAD)))
+      ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varAD)))
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
         bsimsAD[((i-1)*100 + j), ] <- beta2
         beta <- beta2
@@ -159,7 +161,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       Sr <- Sr/(1+(1-(accr/gacc)))
     }
     covRWADr <- Sr*cov(rsimsAD, use= "complete.obs")
+    # update progress bar
+    #Sys.sleep(0.1)
+    #setTxtProgressBar(pb, i)
   } 
+  #close(pb)
   # Burn in
   bsimsBI[1,] <- beta
   rsimsBI[1,] <- g4
@@ -169,14 +175,16 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   covRWb <- covRWADb
   covRWC <- covRWADC
   covRWr <- covRWADr
+  #print(paste("burn-in"))
+  #pb <- txtProgressBar(min = 0, max = Nburn, style = 3)
   for (i in 2:Nburn){
     # parameters
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvn(1, pmb[1:nb], covRWb[1:nb, 1:nb]))
-    g4s <- g4 + as.vector(rmvn(1, pmr, covRWr))
+    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr)))
     ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-    ll1br <- ll1 + log(dmvt(t(c(beta[1:nb], g4)), mu= pmbr, sigma= pVbr, df=7))    
-    ll2br <- ll2 + log(dmvt(t(c(beta2[1:nb], g4s)), mu= pmbr, sigma= pVbr, df=7))    
+    ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
+    ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7)    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -189,11 +197,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvn(nact, c(0,0), covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
     ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-    ll1C <- ll1 + sum(log(dmvn(c, mu= c(0,0), sigma= varBI)))   
+    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varBI)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvn(c2, mu= c(0,0), sigma= varBI)))
+    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varBI)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -205,21 +213,27 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     # Sigma
     varBI <- ginv(matrix(rWishart(1, postdfR, ginv(t(c)%*%c + pVR)), ncol=nvarpar))
     varsimsBI[i,] <- as.vector(varBI)
-  }  
+    # update progress bar
+    #Sys.sleep(0.1)
+    #setTxtProgressBar(pb, i)
+  } 
+  #close(pb)
   # Sample
   sims[1,] <- beta
   rsims[1,] <- g4
   c <- cbind(beta[c((nb[1]+1):(nb[1]+nact))], beta[c((nb[1]+nact+1):npar)])
   var[1,] <- as.vector(varBI)
   vartmp <- varBI
+  #print(paste("sample"))
+  #pb <- txtProgressBar(min = 0, max = Nsamp, style = 3)
   for (i in 2:Nsamp){
     # parameters
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvn(1, pmb[1:nb], covRWb[1:nb, 1:nb]))
-    g4s <- g4 + as.vector(rmvn(1, pmr, covRWr))
+    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr)))
     ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-    ll1br <- ll1 + log(dmvt(t(c(beta[1:nb], g4)), mu= pmbr, sigma= pVbr, df=7))    
-    ll2br <- ll2 + log(dmvt(t(c(beta2[1:nb], g4s)), mu= pmbr, sigma= pVbr, df=7))    
+    ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
+    ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7)    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       sims[i,] <- beta2
       beta <- beta2
@@ -232,11 +246,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvn(nact, c(0,0), covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
     ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-    ll1C <- ll1 + sum(log(dmvn(c, mu= c(0,0), sigma= vartmp)))   
+    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= vartmp)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvn(c2, mu= c(0,0), sigma= vartmp)))
+    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= vartmp)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       sims[i,] <- beta2
       beta <- beta2
@@ -248,15 +262,19 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     # Sigma
     vartmp <- ginv(matrix(rWishart(1, postdfR, ginv(t(c)%*%c + pVR)), ncol=nvarpar))
     var[i,] <- as.vector(vartmp)
-  }  
+    # update progress bar
+    #Sys.sleep(0.1)
+    #setTxtProgressBar(pb, i)
+  } 
+  #close(pb)
   output.matrix <- matrix(NA, nvarcovpar+nb+nr, 10)
   collabels <- c("Estimate", "SE", "Q.05", "Q2.5", "Q25", "Q50", "Q75", "Q97.5", "Q99.5", "Neff")
   colnames(output.matrix) <- collabels
   rowlabels <- c("sender variance", "sender receiver covariance", "receiver variance", all.vars(sender),
                  all.vars(receiver), "density", all.vars(density), "reciprocity", all.vars(reciprocity))
   rownames(output.matrix) <- rowlabels
-  output.matrix[,1] <- c(colMeans(var)[c(1,2,4)],colMeans(sims[,1:nb]), colMeans(rsims[, 1:nr])) 
-  output.matrix[,2] <- c(sqrt(diag(cov(var)))[c(1,2,4)], sqrt(diag(cov(sims[, 1:nb]))), sqrt(diag(cov(rsims)))) 
+  output.matrix[,1] <- c(colMeans(var)[c(1,2,4)],if (nb>1) {colMeans(sims[,1:nb])} else {mean(sims[,1])}, if (nr>1) {colMeans(rsims[, 1:nr])} else {mean(rsims)}) 
+  output.matrix[,2] <- c(sqrt(diag(cov(var)))[c(1,2,4)], if (nb>1) {sqrt(diag(cov(sims[, 1:nb])))} else {sd(sims)}, if (nr>1) {sqrt(diag(cov(rsims)))} else {sd(rsims)}) 
   output.matrix[1,3:9] <- quantile(var[,1],  probs = c(0.5, 2.5, 25, 50, 75, 97.5, 99.5)/100)
   output.matrix[,3:9] <- t(apply(cbind(var[, c(1,2,4)], sims[,1:nb], rsims), 2, quantile, probs = c(0.5, 2.5, 25, 50, 75, 97.5, 99.5)/100))
   output.matrix[,10] <- t(apply(cbind(var[, c(1,2,4)], sims[,1:nb], rsims), 2, effectiveEst))
