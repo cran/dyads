@@ -1,6 +1,7 @@
 export(
   j2,
-  p2
+  p2,
+  b2ML
 )
 
 # used internally - not intended to be visible to users
@@ -10,8 +11,12 @@ export(
 # llp2
 # effectiveEst
 
-importFrom("mvtnorm", "dmvnorm", "dmvt", "rmvnorm")
+importFrom("mvtnorm", "dmvnorm")
 importFrom("stats", "cov", "model.matrix", "quantile", "rWishart",
            "runif", "sd", "var")
 importFrom("MASS", "ginv")
+importFrom("CholWishart", "rInvWishart")
+importFrom("RcppZiggurat", "zsetseed")
+importFrom("Rfast", "rmvnorm", "dmvt")
+#importFrom("plyr", "rbind.fill.matrix")
 #importFrom("utils", "txtProgressBar")

@@ -99,11 +99,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     for (j in 1:Sadapt){ 
       # parameters
       beta2 <- beta 
-      beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWADb[1:nb, 1:nb])))
-      g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWADr[1:nr, 1:nr])))
+      beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+      g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
       ll2 <- llp2(y, X, X4, beta2, g4s, M, My, R, rInd)
-      ll1br <- ll1 + dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr)    
-      ll2br <- ll2 + dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr) 
+      ll1br <- ll1 + mvtnorm::dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr)    
+      ll2br <- ll2 + mvtnorm::dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr) 
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
         bsimsAD[((i-1)*Sadapt + j), ] <- beta2
         beta <- beta2
@@ -118,11 +118,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       }   
       # random effects
       beta2 <- beta
-      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWADC))
+      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
       ll2 <- llp2(y, X, X4, beta2, g4, M, My, R, rInd)
-      ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varAD)))   
+      ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= varAD)))   
       c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-      ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varAD)))
+      ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= varAD)))
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
         bsimsAD[((i-1)*Sadapt + j), ] <- beta2
         beta <- beta2
@@ -133,7 +133,7 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
         bsimsAD[((i-1)*Sadapt + j), ] <- beta
       }
       # Sigma
-      varAD <- ginv(matrix(rWishart(1, postdfR, ginv(t(c)%*%c + pVR)), ncol=nvarpar))
+      varAD <- MASS::ginv(matrix(stats::rWishart(1, postdfR, MASS::ginv(t(c)%*%c + pVR)), ncol=nvarpar))
       varsimsAD[i,] <- as.vector(varAD)
     }  
     if (accb > gacc){
@@ -173,11 +173,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   for (i in 2:Nburn){
     # parameters 
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
-    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr[1:nr, 1:nr])))
+    beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
     ll2 <- llp2(y, X, X4, beta2, g4s, M, My, R, rInd)
-    ll1br <- ll1 + log(dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr))    
-    ll2br <- ll2 + log(dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr))    
+    ll1br <- ll1 + log(mvtnorm::dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr))    
+    ll2br <- ll2 + log(mvtnorm::dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr))    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -190,11 +190,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
     ll2 <- llp2(y, X, X4, beta2, g4, M, My, R, rInd)
-    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varBI)))   
+    ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= varBI)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varBI)))
+    ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= varBI)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -204,7 +204,7 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       bsimsBI[i,] <- beta
     } 
     # Sigma
-    varBI <- ginv(matrix(rWishart(1, postdfR, ginv(t(c)%*%c + pVR)), ncol=nvarpar))
+    varBI <- MASS::ginv(matrix(stats::rWishart(1, postdfR, MASS::ginv(t(c)%*%c + pVR)), ncol=nvarpar))
     varsimsBI[i,] <- as.vector(varBI)
     # update progress bar
     #Sys.sleep(0.1)
@@ -222,11 +222,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   for (i in 2:Nsamp){
     # parameters
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
-    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr[1:nr, 1:nr])))
+    beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
     ll2 <- llp2(y, X, X4, beta2, g4s, M, My, R, rInd)
-    ll1br <- ll1 + log(dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr))    
-    ll2br <- ll2 + log(dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr))    
+    ll1br <- ll1 + log(mvtnorm::dmvnorm(t(c(beta[1:nb], g4)), mean= pmbr, sigma= pVbr))    
+    ll2br <- ll2 + log(mvtnorm::dmvnorm(t(c(beta2[1:nb], g4s)), mean= pmbr, sigma= pVbr))    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       sims[i,] <- beta2
       beta <- beta2
@@ -239,11 +239,11 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
     ll2 <- llp2(y, X, X4, beta2, g4, M, My, R, rInd)
-    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= vartmp)))   
+    ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= vartmp)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= vartmp)))
+    ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= vartmp)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       sims[i,] <- beta2
       beta <- beta2
@@ -253,7 +253,7 @@ p2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       sims[i,] <- beta
     } 
     # Sigma
-    vartmp <- ginv(matrix(rWishart(1, postdfR, ginv(t(c)%*%c + pVR)), ncol=nvarpar))
+    vartmp <- MASS::ginv(matrix(stats::rWishart(1, postdfR, MASS::ginv(t(c)%*%c + pVR)), ncol=nvarpar))
     var[i,] <- as.vector(vartmp)
     # update progress bar
     #Sys.sleep(0.1)

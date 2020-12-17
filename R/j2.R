@@ -106,11 +106,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     for (j in 1:Sadapt){ 
       # parameters
       beta2 <- beta 
-      beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWADb[1:nb, 1:nb])))
-      g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWADr)))
+      beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+      g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
       ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-      ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
-      ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7) 
+      ll1br <- ll1 + mvtnorm::dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
+      ll2br <- ll2 + mvtnorm::dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7) 
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
         bsimsAD[((i-1)*Sadapt + j), ] <- beta2
         beta <- beta2
@@ -125,11 +125,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
       }   
       # random effects
       beta2 <- beta
-      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma= covRWADC))
+      beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
       ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-      ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varAD)))   
+      ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= varAD)))   
       c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-      ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varAD)))
+      ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= varAD)))
       if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
         bsimsAD[((i-1)*100 + j), ] <- beta2
         beta <- beta2
@@ -180,11 +180,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   for (i in 2:Nburn){
     # parameters
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
-    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr)))
+    beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
     ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-    ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
-    ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7)    
+    ll1br <- ll1 + Rfast::dmvt(t(c(beta[1:nb], g4)), mu= pmbr, sigma= pVbr, nu=7, logged = TRUE)    
+    ll2br <- ll2 + Rfast::dmvt(t(c(beta2[1:nb], g4s)), mu= pmbr, sigma= pVbr, nu=7, logged = TRUE)    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -197,11 +197,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
     ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= varBI)))   
+    ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= varBI)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= varBI)))
+    ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= varBI)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       bsimsBI[i,] <- beta2
       beta <- beta2
@@ -229,11 +229,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
   for (i in 2:Nsamp){
     # parameters
     beta2 <- beta 
-    beta2[1:nb] <- beta[1:nb] + as.vector(rmvnorm(1, sigma=as.matrix(covRWb[1:nb, 1:nb])))
-    g4s <- g4 + as.vector(rmvnorm(1, sigma=as.matrix(covRWr)))
+    beta2[1:nb] <- beta[1:nb] + as.vector(Rfast::rmvnorm(1, pmb[1:nb], as.matrix(covRWADb[1:nb, 1:nb])))
+    g4s <- g4 + as.vector(Rfast::rmvnorm(1, pmr, as.matrix(covRWADr[1:nr, 1:nr])))
     ll2 <- llj2(y, X, X4, beta2, g4s, M, My, R, cSign)
-    ll1br <- ll1 + dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
-    ll2br <- ll2 + dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7)    
+    ll1br <- ll1 + mvtnorm::dmvt(t(c(beta[1:nb], g4)), sigma= pVbr, df=7)    
+    ll2br <- ll2 + mvtnorm::dmvt(t(c(beta2[1:nb], g4s)), sigma= pVbr, df=7)    
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2br-ll1br))){
       sims[i,] <- beta2
       beta <- beta2
@@ -246,11 +246,11 @@ j2 <- function (net, sender = NULL, receiver = NULL , density = NULL, reciprocit
     }   
     # random effects
     beta2 <- beta
-    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(rmvnorm(nact, sigma=covRWC))
+    beta2[(nb+1):npar] <- beta[(nb+1):npar] + as.vector(Rfast::rmvnorm(nact, c(0,0), covRWADC))
     ll2 <- llj2(y, X, X4, beta2, g4, M, My, R, cSign)
-    ll1C <- ll1 + sum(log(dmvnorm(c, mean= c(0,0), sigma= vartmp)))   
+    ll1C <- ll1 + sum(log(mvtnorm::dmvnorm(c, mean= c(0,0), sigma= vartmp)))   
     c2 <- cbind(beta2[c((nb[1]+1):(nb[1]+nact))], beta2[c((nb[1]+nact+1):npar)])
-    ll2C <- ll2 + sum(log(dmvnorm(c2, mean= c(0,0), sigma= vartmp)))
+    ll2C <- ll2 + sum(log(mvtnorm::dmvnorm(c2, mean= c(0,0), sigma= vartmp)))
     if (runif(1, min = 0, max = 1) <  min(1, exp(ll2C-ll1C))){
       sims[i,] <- beta2
       beta <- beta2
