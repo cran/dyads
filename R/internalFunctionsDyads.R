@@ -346,11 +346,11 @@ Ccenter <- function(var,grp) {
   return(as.vector(var))
 }
 
-summary.b2ML <- function(z){
-  MCMCsims <- z$MCMCsims[ , c(1, if (z$drandd>0) 1+z$drandd, 
-                              if (z$ns>0) {(1+z$drandd+1):(1+z$drandd+z$ns)},
-                              if (z$separate == FALSE) {1+z$drandd+z$ns+z$nre+1} else {(1+z$drandd+z$ns+z$nre+1):(1+z$drandd+z$ns+z$nre+z$nrandd)}, 
-                              if (z$nd>0) {if (z$separate == FALSE) {(1+z$drandd+z$ns+z$nre+z$nrandd+2):(1+z$drandd+z$ns+z$nre+z$nrandd+1+z$nd)} else {(1+z$drandd+z$ns+z$nre+z$nrandd+1):(1+z$drandd+z$ns+z$nre+z$nrandd+z$nd)}})]
+summary.b2ML <- function(object, ...){
+  MCMCsims <- object$MCMCsims[ , c(1, if (object$drandd>0) 1+object$drandd, 
+                              if (object$ns>0) {(1+object$drandd+1):(1+object$drandd+object$ns)},
+                              if (object$separate == FALSE) {1+object$drandd+object$ns+object$nre+1} else {(1+object$drandd+object$ns+object$nre+1):(1+object$drandd+object$ns+object$nre+object$nrandd)}, 
+                              if (object$nd>0) {if (object$separate == FALSE) {(1+object$drandd+object$ns+object$nre+object$nrandd+2):(1+object$drandd+object$ns+object$nre+object$nrandd+1+object$nd)} else {(1+object$drandd+object$ns+object$nre+object$nrandd+1):(1+object$drandd+object$ns+object$nre+object$nrandd+object$nd)}})]
   output.matrix <- matrix(NA, dim(MCMCsims)[2], 10)
   colnames(output.matrix) <- c("Estimate", "SE", "Q.05", "Q2.5", "Q25", "Q50", "Q75", "Q97.5", "Q99.5", "Neff")
   rownames(output.matrix) <- colnames(MCMCsims)
