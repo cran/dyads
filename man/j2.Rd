@@ -5,7 +5,7 @@
   MCMC estimates for the j2 model
 }
 \description{
-  Estimates j2 model parameters as described in Zijlstra (in press) <doi:10.1080/0022250X.2017.1387858>.
+  Estimates j2 model parameters as described in Zijlstra (2017) <doi:10.1080/0022250X.2017.1387858>.
 }
 \usage{
 j2(net, sender = NULL, receiver = NULL , density = NULL, reciprocity = NULL, 
@@ -29,7 +29,7 @@ burnin = NULL, sample = NULL, adapt= NULL, center = NULL, seed = NULL)
 Returns a matrix with MCMC means, standard deviations, quantiles and effective sample sizes for j2 parameters.
 }
 \references{
-Zijlstra, B.J.H. (in press). Regression of directed graphs on independent effects for density and reciprocity. \emph{Journal of Mathematical Sociology}.
+Zijlstra, B.J.H. (2017). Regression of directed graphs on independent effects for density and reciprocity. \emph{The Journal of Mathematical Sociology} 41 (4).
 }
 \author{
 Bonne J.H. Zijlstra \email{b.j.h.zijlstra@uva.nl}
@@ -70,7 +70,7 @@ j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
 # notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
-\donttest{
+\dontrun{
 j2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R)
 }
 }

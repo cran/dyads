@@ -69,7 +69,7 @@ p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
 # Notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
-\donttest{
+\dontrun{
 p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1+ D2, reciprocity= ~ R)
 }
 }

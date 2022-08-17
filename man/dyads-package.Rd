@@ -13,7 +13,7 @@ Package for Dyadic Network Analysis.
 
 \packageDESCRIPTION{dyads}
 \packageIndices{dyads}
-Includes functions for estimation of the p2 model (van Duijn, Snijders and Zijlstra (2004) <doi:10.1046/j.0039-0402.2003.00258.x>), more specifically the adaptive random walk algorithm (Zijlstra, van Duijn and Snijders (2009) <doi:10.1348/000711007X255336>), for the estimation of the j2 model (Zijlstra (2017) <doi:10.1080/0022250X.2017.1387858>), and for their bidirectional counterpart, b2.
+Includes functions for estimation of the (multilevel) p2 model (van Duijn, Snijders and Zijlstra (2004) <doi:10.1046/j.0039-0402.2003.00258.x>), more specifically the adaptive random walk algorithm (Zijlstra, van Duijn and Snijders (2009) <doi:10.1348/000711007X255336>), for the estimation of the j2 model (Zijlstra (2017) <doi:10.1080/0022250X.2017.1387858>), and for their bidirectional counterpart, b2.
 }
 \author{
 Bonne J.H. Zijlstra
@@ -65,7 +65,7 @@ p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R,
 # Notice: burn-in, sample size and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
-\donttest{
+\dontrun{
 p2(Y,sender= ~ S, receiver =  ~ REC, density = ~ D1 + D2, reciprocity= ~ R)
 }
 }

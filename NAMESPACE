@@ -1,7 +1,8 @@
 export(
   j2,
   p2,
-  b2ML
+  b2ML,
+  p2ML
 )
 
 # used internally - not intended to be visible to users
@@ -13,7 +14,7 @@ export(
 
 importFrom("mvtnorm", "dmvnorm")
 importFrom("stats", "cov", "model.matrix", "quantile", "rWishart",
-           "runif", "sd", "var")
+           "runif", "sd", "var", "dnorm")
 importFrom("MASS", "ginv")
 importFrom("CholWishart", "rInvWishart")
 importFrom("RcppZiggurat", "zsetseed")
@@ -22,3 +23,4 @@ importFrom("Rfast", "rmvnorm", "dmvt")
 #importFrom("utils", "txtProgressBar")
 
 S3method(summary, "b2ML")
+S3method(summary, "2ML")

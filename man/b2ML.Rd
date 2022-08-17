@@ -79,7 +79,7 @@ summary(M1)
 # Notice: burn-in, and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
-\donttest{
+\dontrun{
 M1 <- b2ML(Y,actor= ~ Aat + Abt, density = ~ Dat, densVar = FALSE)
 summary(M1)
 }
@@ -91,7 +91,7 @@ summary(M2)
 # Notice: burn-in, and number of adaptive sequenses are 
 # much smaller than recommended to keep computation time low.
 # recommended code: 
-\donttest{
+\dontrun{
 M2 <- b2ML(list(Y[[1]]),actor= ~ Aat[1:10,], density = ~ Dat[1:10,], densVar = FALSE)
 summary(M2)
 }
